@@ -1,4 +1,5 @@
-1 2
-3 4
-5 6
-7 8
+Usage : python scykit.py 5 -p -f /home/inria/Desktop/scikit/plots/plot1.png
+
+-p : plot
+
+-f : save plot to file 
