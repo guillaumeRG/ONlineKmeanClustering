@@ -19,7 +19,7 @@ class Afficheur(Thread):
  #Plot result
  
  
- def __init__(self,test,mbk,k_means,X,n_clusters,t_batch):
+ def __init__(self,test,labels_true,mbk,k_means,X,n_clusters,t_batch):
  
   
   self.t0 = time.time()
@@ -33,12 +33,13 @@ class Afficheur(Thread):
   self.X=X
   self.n_clusters= n_clusters
   self.t_batch=t_batch
-  
-  self.test=test
-  print('%s'%self.test)
+
+  self.labels_true=labels_true
+  print('%s'%test)
   Thread.__init__(self)
+ 
  def run(self):
-  
+  self.run=True
   self.colors = ['#4EACC5', '#FF9C34', '#4E9A06']
   # KMeans
   k_means_cluster_centers = np.sort(self.k_means.cluster_centers_, axis=0)
@@ -48,71 +49,50 @@ class Afficheur(Thread):
       cluster_center = k_means_cluster_centers[k]
 
   self.t_mini_batch = time.time() - self.t0
-  # MiniBatchKMeans
-  mbk_means_cluster_centers = np.sort(self.mbk.cluster_centers_, axis=0)
-  mbk_means_labels = pairwise_distances_argmin(self.X, mbk_means_cluster_centers)
-  order = pairwise_distances_argmin(k_means_cluster_centers,
-                             mbk_means_cluster_centers)
-  for k, col in zip(range(self.n_clusters), self.colors):
-   my_members = mbk_means_labels == order[k]
-   cluster_center = mbk_means_cluster_centers[order[k]]
+  lastN_diff=0
+  while(self.run):
+   # MiniBatchKMeans
+   mbk_means_cluster_centers = np.sort(self.mbk.cluster_centers_, axis=0)
+   mbk_means_labels = pairwise_distances_argmin(self.X, mbk_means_cluster_centers)
+   order = pairwise_distances_argmin(k_means_cluster_centers,
+                              mbk_means_cluster_centers)
+   for k, col in zip(range(self.n_clusters), self.colors):
+    my_members = mbk_means_labels == order[k]
+    cluster_center = mbk_means_cluster_centers[order[k]]
 
 
-  # Initialise the different array to all False
-  different = (mbk_means_labels == 4)
-
-  
-  for k in range(self.n_clusters):
-   different += ((k_means_labels == k) != (mbk_means_labels == order[k]))
+   # Initialise the different array to all False
+   different = (mbk_means_labels == 4)
+   nbK = (mbk_means_labels == 4)
+   err = (mbk_means_labels == 4)
+   nbL = (mbk_means_labels == 4)
+   for k in range(self.n_clusters):
+    different += ((k_means_labels == k) != (mbk_means_labels == order[k]))
+    nbK += ((self.labels_true == k) != (mbk_means_labels == order[k]))
+    nbL += (self.labels_true == k)
+    err[k] = nbK[k]/ nbL[k]
+    
+   identic = np.logical_not(different)
+   
+   n_diff =len(self.X[different,])
+   if  lastN_diff!=n_diff :
+    print('')
+    for k in range(self.n_clusters):
+    
+     print('Erreur cluster %d : %f'%(k ,err[k]))
+    
       
-  identic = np.logical_not(different)
+    print('Clustering \'s difference: %d'%n_diff)
+    ratio = n_diff/len(mbk_means_labels == 4)
+    print('Difference \'s ratio: %f'%ratio)
+    lastN_diff=n_diff
+   
+ def stop(self):
+  self.run = False
 
-
-  n_diff =len(self.X[different,])
-  print('Clustering \'s difference: %d'%n_diff)
-  ratio = n_diff/len(mbk_means_labels == 4)
-  print('Difference \'s ratio: %f'%ratio)
-  
-  
-
- def update(self,mbk,X,n_clusters,t_batch):
-
-
+ def update(self,mbk):
   self.mbk=mbk
-  self.X=X
-  self.n_clusters= n_clusters
-  self.t_batch=t_batch
- # We want to have the same colors for the same cluster from the
-  # MiniBatchKMeans and the KMeans algorithm. Let's pair the cluster centers per
-  # closest one.
-  k_means_cluster_centers = np.sort(self.k_means.cluster_centers_, axis=0)
-  mbk_means_cluster_centers = np.sort(self.mbk.cluster_centers_, axis=0)
-  k_means_labels = pairwise_distances_argmin(self.X, k_means_cluster_centers)
-  mbk_means_labels = pairwise_distances_argmin(self.X, mbk_means_cluster_centers)
-  order = pairwise_distances_argmin(k_means_cluster_centers,
-                             mbk_means_cluster_centers)
-
-  # MiniBatchKMeans
-  for k, col in zip(range(self.n_clusters), self.colors):
-   my_members = mbk_means_labels == order[k]
-   cluster_center = mbk_means_cluster_centers[order[k]]
   
-
-  # Initialise the different array to all False
-  different = (mbk_means_labels == 4)
-
-  for k in range(self.n_clusters):
-   different += ((k_means_labels == k) != (mbk_means_labels == order[k]))
-      
-  identic = np.logical_not(different)
-
-  
-
-
-  n_diff =len(self.X[different,])
-  print('Clustering \'s difference: %d'%n_diff)
-  ratio = n_diff/len(mbk_means_labels == 4)
-  print('Difference \'s ratio: %f'%ratio)
-  
+ 
  
 
