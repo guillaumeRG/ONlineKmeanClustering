@@ -63,14 +63,21 @@ class Afficheur(Thread):
 
    # Initialise the different array to all False
    different = (mbk_means_labels == 4)
-   nbK = (mbk_means_labels == 4)
-   err = (mbk_means_labels == 4)
-   nbL = (mbk_means_labels == 4)
+   nbK = np.arange(self.n_clusters)
+   err = np.arange(self.n_clusters)
+   nbL = np.arange(self.n_clusters)
+  
    for k in range(self.n_clusters):
     different += ((k_means_labels == k) != (mbk_means_labels == order[k]))
-    nbK += ((self.labels_true == k) != (mbk_means_labels == order[k]))
-    nbL += (self.labels_true == k)
-    err[k] = nbK[k]/ nbL[k]
+    i=0
+    for s in mbk_means_labels:
+     if s == self.labels_true[i] :
+      nbK[k] += 1 
+     if self.labels_true[i] == k:
+      nbL[k] +=1
+     i += 1
+      
+    err[k] = nbK[k]/ nbL[k] 
     
    identic = np.logical_not(different)
    
@@ -79,7 +86,7 @@ class Afficheur(Thread):
     print('')
     for k in range(self.n_clusters):
     
-     print('Erreur cluster %d : %f'%(k ,err[k]))
+     print('Erreur cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
     
       
     print('Clustering \'s difference: %d'%n_diff)

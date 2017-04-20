@@ -20,12 +20,12 @@ if __name__ == '__main__':
   #to concatenate for stream array1 + array2 = stream
   #config
   n_iter=int(sys.argv[1])
-  n_samples=10000
+  n_samples=30000
   cluster_std=1
   #Generate sample data
   np.random.seed(0)
   batch_size = 45
-  centers = [[2, 2], [-2, -2], [2, -2]]
+  centers = [[4, 4], [-4, -4], [4, -4]]
   n_clusters = len(centers)
   X, labels_true = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std)
   print(X.shape)
@@ -148,7 +148,7 @@ if __name__ == '__main__':
      plt.savefig(sys.argv[4])
      print('Done !')
     elif sys.argv[3] == '-f' and sys.argv[4] == None:
-     print('Usage : -m PATH/NAME')
+     print('Usage : -f PATH/NAME')
     
    
   except IndexError:
