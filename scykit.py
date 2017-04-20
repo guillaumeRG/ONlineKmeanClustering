@@ -17,15 +17,15 @@ def dataGen(centers,n_Samples,cluster_std):
 if __name__ == '__main__':
   
   
-  #to concatenate for stream array1 + array2 = stream
+  
   #config
   n_iter=int(sys.argv[1])
   n_samples=30000
-  cluster_std=1
+  cluster_std=0
   #Generate sample data
   np.random.seed(0)
   batch_size = 45
-  centers = [[4, 4], [-4, -4], [4, -4]]
+  centers = [[6, 6], [-5, -5], [5, -5]]
   n_clusters = len(centers)
   X, labels_true = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std)
   print(X.shape)
@@ -142,14 +142,14 @@ if __name__ == '__main__':
     print('Clustering \'s difference: %d'%n_diff)
     ratio = n_diff/len(mbk_means_labels == 4)
     print('Difference \'s ratio: %f'%ratio)
-    plt.show()
+    
     if (sys.argv[3] == '-f') and (sys.argv[4] != None):
      print('Saving...')
      plt.savefig(sys.argv[4])
      print('Done !')
     elif sys.argv[3] == '-f' and sys.argv[4] == None:
      print('Usage : -f PATH/NAME')
-    
+    plt.show()
    
   except IndexError:
    pass 
