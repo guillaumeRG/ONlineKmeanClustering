@@ -86,7 +86,7 @@ class Afficheur(Thread):
     print('')
     for k in range(self.n_clusters):
     
-     print('Erreur cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
+     print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
     
       
     print('Clustering \'s difference: %d'%n_diff)

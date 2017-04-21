@@ -4,15 +4,24 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 from plot import Afficheur
-from sklearn.cluster import MiniBatchKMeans, KMeans
+import sklearn.cluster.k_means_ as cluster
 from sklearn.metrics.pairwise import pairwise_distances_argmin
 from sklearn.datasets.samples_generator import make_blobs
+import scipy.sparse as sp
+from sklearn.utils.sparsefuncs import mean_variance_axis
 
 #export PATH=~/anaconda3/bin:$PATH
 
 def dataGen(centers,n_Samples,cluster_std):
    return make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std)
-
+   
+def _tolerance(X, tol):
+    """Return a tolerance which is independent of the dataset"""
+    if sp.issparse(X):
+        variances = mean_variance_axis(X, axis=0)[1]
+    else:
+        variances = np.var(X, axis=0)
+    return np.mean(variances) * tol
 
 if __name__ == '__main__':
   
@@ -20,11 +29,11 @@ if __name__ == '__main__':
   
   #config
   n_iter=int(sys.argv[1])
-  n_samples=30000
+  n_samples=100000
   cluster_std=0.7
   #Generate sample data
   np.random.seed(0)
-  batch_size = 500
+  batch_size = 750
   centers = [[2, 2], [-2, -2], [2, -2]]
   n_clusters = len(centers)
   X, labels_true = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std)
@@ -34,7 +43,7 @@ if __name__ == '__main__':
 
 
   #Compute clustering with Means
-  k_means = KMeans(init='k-means++', n_clusters=3, n_init=10)
+  k_means = cluster.KMeans(init='k-means++', n_clusters=3, n_init=10)
   t0 = time.time()
   k_means.fit(X)
   t_batch = time.time() - t0
@@ -44,20 +53,18 @@ if __name__ == '__main__':
  
   #to do with online MBK_mean  
   #Compute clustering with MiniBatchKMeans
-  mbk = MiniBatchKMeans(init='k-means++', n_clusters=3, batch_size=batch_size,n_init=10, max_no_improvement=10, verbose=0)
-
+  mbk = cluster.MiniBatchKMeans(init='k-means++', n_clusters=3, batch_size=batch_size,n_init=10, max_no_improvement=n_iter, verbose=0)
   t0 = time.time()
   mbk=mbk.partial_fit(X)
   try:
-   if sys.argv[2] == '-pp':
+   if sys.argv[2] == '-pp' or sys.argv[3] == '-pp':
     thread_1 = Afficheur('starting threads',labels_true,mbk,k_means,X,n_clusters,t_batch)
     thread_1.start()
   except IndexError:
    pass
-  # Lancement des threads
-  
- 
-  #thread_1.run(k_means,mbk,X,n_clusters,t_batch)
+   
+   
+
   try:
    if sys.argv[2] == '-pp':
     # Sample a minibatch from the full dataset
@@ -65,8 +72,40 @@ if __name__ == '__main__':
      mbk=mbk.partial_fit(X)
      thread_1.update(mbk)
     thread_1.stop()
-   else:   
+     
+   elif sys.argv[2] == '-o':
+    if sys.argv[3] == '-pp': 
+     tol=0
+     
+
+     convergence_context = {}
+     for iteration_idx in range(n_iter):
+      mbk=mbk.partial_fit(X)
+      tol = _tolerance(X, tol)
+      thread_1.update(mbk)
+      n_batches = int(np.ceil(float(n_samples) / batch_size))
+      n_iter = int(n_iter * n_batches)
+      # Monitor convergence and do early stopping if necessary
+      if cluster._mini_batch_convergence(mbk, iteration_idx, n_iter, tol, n_samples,mbk.centers_squared_diff, mbk.batch_inertia, convergence_context,verbose=mbk.verbose):
+       break
+     thread_1.stop()
    
+    elif sys.argv[3] == '-p':
+     tol=0
+     n_batches = int(np.ceil(float(n_samples) / batch_size))
+     n_iter = int(n_iter * n_batches)
+     convergence_context = {}
+     for iteration_idx in range(n_iter):
+      mbk=mbk.partial_fit(X)
+      tol = _tolerance(X, tol)
+     
+      # Monitor convergence and do early stopping if necessary
+      if cluster._mini_batch_convergence(mbk, iteration_idx, n_iter, tol, n_samples,mbk.centers_squared_diff, mbk.batch_inertia, convergence_context,verbose=False):
+       break
+   
+   elif sys.argv[2] == '-n':
+    mbk=mbk.fit(X)
+   else:   
     # Sample a minibatch from the full dataset
     for iteration_idx in range(n_iter-1):
      mbk=mbk.partial_fit(X)
@@ -75,7 +114,7 @@ if __name__ == '__main__':
    pass
   
   try:
-   if sys.argv[2] == '-p' or sys.argv[2] == '-pp':
+   if sys.argv[2] == '-p' or sys.argv[2] == '-pp' or sys.argv[3] == '-pp' or sys.argv[3] == '-p':
     print('plotting')
     #Plot result
     fig = plt.figure(figsize=(8, 3))
@@ -123,11 +162,22 @@ if __name__ == '__main__':
 
     # Initialise the different array to all False
     different = (mbk_means_labels == 4)
-
+    nbK = np.arange(n_clusters)
+    err = np.arange(n_clusters)
+    nbL = np.arange(n_clusters)
     ax = fig.add_subplot(1, 3, 3)
 
     for k in range(n_clusters):
      different += ((k_means_labels == k) != (mbk_means_labels == order[k]))
+     i=0
+     for s in mbk_means_labels:
+      if s == labels_true[i] :
+       nbK[k] += 1 
+      if labels_true[i] == k:
+       nbL[k] +=1
+      i += 1
+       
+     err[k] = nbK[k]/ nbL[k] 
         
     identic = np.logical_not(different)
 
@@ -139,12 +189,15 @@ if __name__ == '__main__':
     ax.set_yticks(())
      
     n_diff =len(X[different,])
-    
+    for k in range(n_clusters):
+     print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
+     
     print('Clustering \'s difference: %d'%n_diff)
     ratio = n_diff/len(mbk_means_labels == 4)
     print('Difference \'s ratio: %f'%ratio)
+   
     
-    if sys.argv[2] == '-p' or sys.argv[2] == '-pp':
+    if sys.argv[2] == '-p' or sys.argv[2] == '-pp' or sys.argv[3] == '-pp' or sys.argv[3] == '-p':
      plt.show()
     if (sys.argv[3] == '-f') and (sys.argv[4] != None):
      print('Saving...')
@@ -159,6 +212,8 @@ if __name__ == '__main__':
    
   except IndexError:
    pass 
+   
+   
 
 
 
