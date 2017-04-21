@@ -21,11 +21,11 @@ if __name__ == '__main__':
   #config
   n_iter=int(sys.argv[1])
   n_samples=30000
-  cluster_std=0
+  cluster_std=0.7
   #Generate sample data
   np.random.seed(0)
-  batch_size = 45
-  centers = [[6, 6], [-5, -5], [5, -5]]
+  batch_size = 500
+  centers = [[2, 2], [-2, -2], [2, -2]]
   n_clusters = len(centers)
   X, labels_true = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std)
   print(X.shape)
@@ -139,17 +139,23 @@ if __name__ == '__main__':
     ax.set_yticks(())
      
     n_diff =len(X[different,])
+    
     print('Clustering \'s difference: %d'%n_diff)
     ratio = n_diff/len(mbk_means_labels == 4)
     print('Difference \'s ratio: %f'%ratio)
     
+    if sys.argv[2] == '-p' or sys.argv[2] == '-pp':
+     plt.show()
     if (sys.argv[3] == '-f') and (sys.argv[4] != None):
      print('Saving...')
      plt.savefig(sys.argv[4])
      print('Done !')
     elif sys.argv[3] == '-f' and sys.argv[4] == None:
      print('Usage : -f PATH/NAME')
-    plt.show()
+    
+   
+    
+    
    
   except IndexError:
    pass 
