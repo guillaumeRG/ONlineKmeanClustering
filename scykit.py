@@ -9,6 +9,8 @@ from sklearn.metrics.pairwise import pairwise_distances_argmin
 from sklearn.datasets.samples_generator import make_blobs
 import scipy.sparse as sp
 from sklearn.utils.sparsefuncs import mean_variance_axis
+from sklearn.utils import check_random_state
+from sklearn.utils.extmath import row_norms
 
 #export PATH=~/anaconda3/bin:$PATH
 
@@ -28,6 +30,8 @@ if __name__ == '__main__':
   
   
   #config
+  n_init=100
+  init='k-means++'
   n_iter=int(sys.argv[1])
   n_samples=100000
   cluster_std=0.7
@@ -53,9 +57,9 @@ if __name__ == '__main__':
  
   #to do with online MBK_mean  
   #Compute clustering with MiniBatchKMeans
-  mbk = cluster.MiniBatchKMeans(init='k-means++', n_clusters=3, batch_size=batch_size,n_init=10, max_no_improvement=n_iter, verbose=0)
+  mbk = cluster.MiniBatchKMeans(init=init, n_clusters=3, batch_size=batch_size,n_init=10, max_no_improvement=n_iter, verbose=0)
   t0 = time.time()
-  mbk=mbk.partial_fit(X)
+  
   try:
    if sys.argv[2] == '-pp' or sys.argv[3] == '-pp':
     thread_1 = Afficheur('starting threads',labels_true,mbk,k_means,X,n_clusters,t_batch)
@@ -74,27 +78,52 @@ if __name__ == '__main__':
     thread_1.stop()
      
    elif sys.argv[2] == '-o':
+    n_batches = int(np.ceil(float(n_samples) / batch_size))
+    max_iter = 100
+    n_iter = int(max_iter * n_batches)
+    tol=0
+    _, n_features = X.shape
+    old_center_buffer = np.zeros(n_features, dtype=X.dtype)
+    
+    #  print('self.max_iter %d , n_batches %d '%(n_iter,n_batches))
     if sys.argv[3] == '-pp': 
-     tol=0
+     #init state
      
+     random_state = check_random_state(None)
+     init_size = 3 * batch_size
+     if init_size > n_samples:
+      init_size = n_samples
+     validation_indices = random_state.randint(0, n_samples, init_size)
+     X_valid = X[validation_indices]
+     x_squared_norms = row_norms(X, squared=True)
+     x_squared_norms_valid = x_squared_norms[validation_indices]
+     counts = np.zeros(n_clusters, dtype=np.int32)
+     best_inertia = None
+     cluster_centers = None
+     for init_idx in range(n_init):
+      cluster_centers = cluster._init_centroids(X, n_clusters, init, random_state=random_state, x_squared_norms=x_squared_norms, init_size=init_size)
+      batch_inertia, centers_squared_diff = cluster._mini_batch_step(X_valid, x_squared_norms[validation_indices], cluster_centers_, counts, old_center_buffer, False, distances=None, verbose=False)
 
+      _, inertia = cluster._labels_inertia(X_valid, x_squared_norms_valid, cluster_centers)
+      if best_inertia is None or inertia < best_inertia:
+       mbk.cluster_centers_ = cluster_centers
+       mbk.counts_ = counts
+       best_inertia = inertia
+       print('best inertia %d' %best_inertia)
+       
+       
      convergence_context = {}
      for iteration_idx in range(n_iter):
       mbk=mbk.partial_fit(X)
-      tol = _tolerance(X, tol)
+      tol = _tolerance(X, tol)    
       thread_1.update(mbk)
-      n_batches = int(np.ceil(float(n_samples) / batch_size))
-      n_iter = int(n_iter * n_batches)
+
       # Monitor convergence and do early stopping if necessary
       if cluster._mini_batch_convergence(mbk, iteration_idx, n_iter, tol, n_samples,mbk.centers_squared_diff, mbk.batch_inertia, convergence_context,verbose=mbk.verbose):
        break
      thread_1.stop()
    
     elif sys.argv[3] == '-p':
-     tol=0
-     n_batches = int(np.ceil(float(n_samples) / batch_size))
-     n_iter = int(n_iter * n_batches)
-     convergence_context = {}
      for iteration_idx in range(n_iter):
       mbk=mbk.partial_fit(X)
       tol = _tolerance(X, tol)
