@@ -8,6 +8,8 @@ first number : number of iteration for online mini batch k mean clustering
 
 -p -f "filename": to save plot into file 
 
+-n to use normal algorithm (fit)
+
 -o to stop when convergence is reached
 
 -o -p + plot

@@ -122,7 +122,7 @@ if __name__ == '__main__':
        best_inertia = inertia
        print('best inertia %d' %best_inertia)
        
-     minibatch_indices = random_state.randint(0, n_samples, batch_size)  
+    
      convergence_context = {}
      mbk.batch_inertia = batch_inertia
      mbk.centers_squared_diff = centers_squared_diff
