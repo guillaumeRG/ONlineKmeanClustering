@@ -126,6 +126,7 @@ if __name__ == '__main__':
      convergence_context = {}
      mbk.batch_inertia = batch_inertia
      mbk.centers_squared_diff = centers_squared_diff
+     
      for iteration_idx in range(n_iter):
       minibatch_indices = random_state.randint(0, n_samples, batch_size)
       mbk=mbk.partial_fit(X[minibatch_indices])
@@ -138,7 +139,8 @@ if __name__ == '__main__':
      thread_1.stop()
    
     elif sys.argv[3] == '-p':
-    
+     random_state = check_random_state(None)
+     convergence_context = {}
      for iteration_idx in range(n_iter):
       minibatch_indices = random_state.randint(0, n_samples, batch_size)
       mbk=mbk.partial_fit(X[minibatch_indices])
@@ -149,10 +151,6 @@ if __name__ == '__main__':
        break
   except IndexError:
    pass
-  
-  
-  
-  
   
   try:
    if sys.argv[2] == '-p':
