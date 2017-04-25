@@ -72,9 +72,10 @@ if __name__ == '__main__':
   try:
    if sys.argv[2] == '-pp':
     random_state = check_random_state(None) 
-    minibatch_indices = random_state.randint(0, n_samples, batch_size)
+    
     # Sample a minibatch from the full dataset
     for iteration_idx in range(n_iter-1):
+     minibatch_indices = random_state.randint(0, n_samples, batch_size)
      mbk=mbk.partial_fit(X[minibatch_indices])
      thread_1.update(mbk)
     thread_1.stop()
@@ -126,6 +127,7 @@ if __name__ == '__main__':
      mbk.batch_inertia = batch_inertia
      mbk.centers_squared_diff = centers_squared_diff
      for iteration_idx in range(n_iter):
+      minibatch_indices = random_state.randint(0, n_samples, batch_size)
       mbk=mbk.partial_fit(X[minibatch_indices])
       tol = _tolerance(X, tol)    
       thread_1.update(mbk)
@@ -136,8 +138,9 @@ if __name__ == '__main__':
      thread_1.stop()
    
     elif sys.argv[3] == '-p':
-     minibatch_indices = random_state.randint(0, n_samples, batch_size)
+    
      for iteration_idx in range(n_iter):
+      minibatch_indices = random_state.randint(0, n_samples, batch_size)
       mbk=mbk.partial_fit(X[minibatch_indices])
       tol = _tolerance(X, tol)
      
@@ -153,8 +156,11 @@ if __name__ == '__main__':
   
   try:
    if sys.argv[2] == '-p':
-    minibatch_indices = random_state.randint(0, n_samples, batch_size)
+    tol=0
+    random_state = check_random_state(None)
+   
     for iteration_idx in range(n_iter):
+     minibatch_indices = random_state.randint(0, n_samples, batch_size)
      mbk=mbk.partial_fit(X[minibatch_indices])
      tol = _tolerance(X, tol)
   except IndexError:
@@ -166,10 +172,12 @@ if __name__ == '__main__':
   except IndexError:
    pass
   try :
-   if sys.argv[2] == None:   
+   if sys.argv[2] == None:
+    random_state = check_random_state(None)   
     # Sample a minibatch from the full dataset
-    minibatch_indices = random_state.randint(0, n_samples, self.batch_size)  
+     
     for iteration_idx in range(n_iter-1):
+     minibatch_indices = random_state.randint(0, n_samples, self.batch_size) 
      mbk=mbk.partial_fit(X,minibatch_indices=minibatch_indices)   
   except IndexError:
    pass
@@ -230,7 +238,7 @@ if __name__ == '__main__':
 
     for k in range(n_clusters):
      different += ((k_means_labels == k) != (mbk_means_labels == order[k]))
-     i=0
+     i = 0
      for s in mbk_means_labels:
       if s == labels_true[i] :
        nbK[k] += 1 
