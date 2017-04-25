@@ -71,13 +71,21 @@ if __name__ == '__main__':
 
   try:
    if sys.argv[2] == '-pp':
+    random_state = check_random_state(None) 
+    minibatch_indices = random_state.randint(0, n_samples, batch_size)
     # Sample a minibatch from the full dataset
     for iteration_idx in range(n_iter-1):
-     mbk=mbk.partial_fit(X)
+     mbk=mbk.partial_fit(X[minibatch_indices])
      thread_1.update(mbk)
     thread_1.stop()
+  except IndexError:
+   pass   
      
-   elif sys.argv[2] == '-o':
+     
+     
+
+  try:  
+   if sys.argv[2] == '-o':
     n_batches = int(np.ceil(float(n_samples) / batch_size))
     max_iter = 100
     n_iter = int(max_iter * n_batches)
@@ -91,8 +99,10 @@ if __name__ == '__main__':
      
      random_state = check_random_state(None)
      init_size = 3 * batch_size
+     
      if init_size > n_samples:
       init_size = n_samples
+      
      validation_indices = random_state.randint(0, n_samples, init_size)
      X_valid = X[validation_indices]
      x_squared_norms = row_norms(X, squared=True)
@@ -100,10 +110,10 @@ if __name__ == '__main__':
      counts = np.zeros(n_clusters, dtype=np.int32)
      best_inertia = None
      cluster_centers = None
+     
      for init_idx in range(n_init):
       cluster_centers = cluster._init_centroids(X, n_clusters, init, random_state=random_state, x_squared_norms=x_squared_norms, init_size=init_size)
-      batch_inertia, centers_squared_diff = cluster._mini_batch_step(X_valid, x_squared_norms[validation_indices], cluster_centers_, counts, old_center_buffer, False, distances=None, verbose=False)
-
+      batch_inertia, centers_squared_diff = cluster._mini_batch_step(X_valid, x_squared_norms[validation_indices], cluster_centers, counts, old_center_buffer, False, distances=None, verbose=False)
       _, inertia = cluster._labels_inertia(X_valid, x_squared_norms_valid, cluster_centers)
       if best_inertia is None or inertia < best_inertia:
        mbk.cluster_centers_ = cluster_centers
@@ -111,10 +121,12 @@ if __name__ == '__main__':
        best_inertia = inertia
        print('best inertia %d' %best_inertia)
        
-       
+     minibatch_indices = random_state.randint(0, n_samples, batch_size)  
      convergence_context = {}
+     mbk.batch_inertia = batch_inertia
+     mbk.centers_squared_diff = centers_squared_diff
      for iteration_idx in range(n_iter):
-      mbk=mbk.partial_fit(X)
+      mbk=mbk.partial_fit(X[minibatch_indices])
       tol = _tolerance(X, tol)    
       thread_1.update(mbk)
 
@@ -124,21 +136,41 @@ if __name__ == '__main__':
      thread_1.stop()
    
     elif sys.argv[3] == '-p':
+     minibatch_indices = random_state.randint(0, n_samples, batch_size)
      for iteration_idx in range(n_iter):
-      mbk=mbk.partial_fit(X)
+      mbk=mbk.partial_fit(X[minibatch_indices])
       tol = _tolerance(X, tol)
      
       # Monitor convergence and do early stopping if necessary
       if cluster._mini_batch_convergence(mbk, iteration_idx, n_iter, tol, n_samples,mbk.centers_squared_diff, mbk.batch_inertia, convergence_context,verbose=False):
        break
-   
-   elif sys.argv[2] == '-n':
+  except IndexError:
+   pass
+  
+  
+  
+  
+  
+  try:
+   if sys.argv[2] == '-p':
+    minibatch_indices = random_state.randint(0, n_samples, batch_size)
+    for iteration_idx in range(n_iter):
+     mbk=mbk.partial_fit(X[minibatch_indices])
+     tol = _tolerance(X, tol)
+  except IndexError:
+   pass
+    
+  try: 
+   if sys.argv[2] == '-n':
     mbk=mbk.fit(X)
-   else:   
+  except IndexError:
+   pass
+  try :
+   if sys.argv[2] == None:   
     # Sample a minibatch from the full dataset
+    minibatch_indices = random_state.randint(0, n_samples, self.batch_size)  
     for iteration_idx in range(n_iter-1):
-     mbk=mbk.partial_fit(X)
-     
+     mbk=mbk.partial_fit(X,minibatch_indices=minibatch_indices)   
   except IndexError:
    pass
   
