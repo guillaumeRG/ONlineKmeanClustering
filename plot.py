@@ -82,7 +82,7 @@ class Afficheur(Thread):
    identic = np.logical_not(different)
    
    n_diff =len(self.X[different,])
-   if  lastN_diff!=n_diff :
+   if  lastN_diff!=n_diff  and ( abs(lastN_diff - n_diff) < len(self.X)/2):
     print('')
     for k in range(self.n_clusters):
     
