@@ -16,3 +16,5 @@ first number : number of iteration for online mini batch k mean clustering
 
 -o -pp + stream plot
 
+-s to use online mode
+
