@@ -19,7 +19,7 @@ class afficheur(Thread):
  #Plot result
  
  
- def __init__(self,test,labels_true,mbk,k_means,X,n_clusters,t_batch):
+ def __init__(self,test,labels_true,mbk,k_means,X,n_clusters):
  
   
   self.t0 = time.time()
@@ -32,7 +32,6 @@ class afficheur(Thread):
   self.mbk=mbk
   self.X=X
   self.n_clusters= n_clusters
-  self.t_batch=t_batch
 
   self.labels_true=labels_true
   print('%s'%test)
