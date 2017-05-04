@@ -18,3 +18,6 @@ first number : number of iteration for online mini batch k mean clustering
 
 -s to use online mode
 
+-l to load csv
+
+
