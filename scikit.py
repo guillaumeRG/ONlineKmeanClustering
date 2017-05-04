@@ -42,7 +42,8 @@ if __name__ == '__main__':
       np.random.seed(0)
       generator = datagen()
       X, labels_true, batch_size, n_samples, n_clusters = generator.genesis()
-     
+  except IndexError:
+     pass   
 
   #Compute clustering with K Mean
   core = core()
@@ -52,10 +53,6 @@ if __name__ == '__main__':
   mbk, t_mini_batch = core.mbkmean(sys.argv,n_clusters, n_init, batch_size, n_iter, n_samples, labels_true, k_means, X)
  
 
-  with open(datapath + 'datatest.csv', newline='') as csvfile:
-    csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
-    for row in csvdata:
-      print(', '.join(row))
 
   #plotting
    
