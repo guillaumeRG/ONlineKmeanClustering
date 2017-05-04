@@ -37,6 +37,14 @@ if __name__ == '__main__':
         for row in csvdata:
           print(', '.join(row))
           index += 1
+    elif(sys.argv[4] == '-l'):
+      with open(datapath + sys.argv[5], newline='') as csvfile:
+        csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
+        print('reading csv...')
+        index=0
+        for row in csvdata:
+          print(', '.join(row))
+          index += 1
     else:
       #Generate sample data
       np.random.seed(0)
