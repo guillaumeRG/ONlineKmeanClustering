@@ -19,7 +19,7 @@ class core():
     else:
         variances = np.var(X, axis=0)
     return np.mean(variances) * tol  
-    
+  
   def input_num(self,prompt):
     """
     prompt the user for a numeric input
@@ -246,7 +246,7 @@ class core():
            thread_1.join()
            return mbk, t_mini_batch
            break
-         
+        
        
         elif options[3] == '-p':
          random_state = check_random_state(None)
@@ -262,7 +262,7 @@ class core():
             t_mini_batch = time.time() - t0
             return mbk, t_mini_batch
             break
-      except TypeError:
+      except IndexError:
         pass
     except IndexError:
       pass

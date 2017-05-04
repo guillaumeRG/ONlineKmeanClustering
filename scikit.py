@@ -1,6 +1,7 @@
 import time
 import sys
 import random
+import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from core import core 
@@ -22,6 +23,7 @@ if __name__ == '__main__':
   np.random.seed(0)
   generator = datagen()
   X, labels_true, batch_size, n_samples, n_clusters = generator.genesis()
+  datapath = 'data/'
 
   #Compute clustering with K Mean
   core = core()
@@ -31,10 +33,13 @@ if __name__ == '__main__':
   mbk, t_mini_batch = core.mbkmean(sys.argv,n_clusters, n_init, batch_size, n_iter, n_samples, labels_true, k_means, X)
  
 
-
+  with open(datapath + 'datatest.csv', newline='') as csvfile:
+    csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
+    for row in csvdata:
+      print(', '.join(row))
 
   #plotting
-  
+   
   try:
    if sys.argv[2] == '-p' or sys.argv[2] == '-pp' or sys.argv[2] == '-s' or sys.argv[3] == '-pp' or sys.argv[3] == '-p':
     print('plotting')
@@ -131,7 +136,7 @@ if __name__ == '__main__':
   except IndexError:
    pass 
    
-   
+  
 
 
 
