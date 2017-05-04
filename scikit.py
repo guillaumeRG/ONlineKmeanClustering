@@ -19,11 +19,30 @@ if __name__ == '__main__':
   n_init=100
   init='k-means++'
   n_iter=int(sys.argv[1])
-  #Generate sample data
-  np.random.seed(0)
-  generator = datagen()
-  X, labels_true, batch_size, n_samples, n_clusters = generator.genesis()
   datapath = 'data/'
+  try:
+    if (sys.argv[2] == '-l' ):
+      with open(datapath + sys.argv[3], newline='') as csvfile:
+        csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
+        print('reading csv...')
+        index=0
+        for row in csvdata:
+          print(', '.join(row))
+          index += 1
+    elif(sys.argv[3] == '-l'):
+      with open(datapath + sys.argv[4], newline='') as csvfile:
+        csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
+        print('reading csv...')
+        index=0
+        for row in csvdata:
+          print(', '.join(row))
+          index += 1
+    else:
+      #Generate sample data
+      np.random.seed(0)
+      generator = datagen()
+      X, labels_true, batch_size, n_samples, n_clusters = generator.genesis()
+     
 
   #Compute clustering with K Mean
   core = core()
