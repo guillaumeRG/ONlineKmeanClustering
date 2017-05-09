@@ -94,7 +94,7 @@ class core():
       best_inertia = None
       cluster_centers = None
       
-      for init_idx in range(n_init):
+      '''for init_idx in range(n_init):
        
        cluster_centers = cluster._init_centroids(X, n_clusters, self.init, random_state=random_state, x_squared_norms=x_squared_norms, init_size=init_size)
        batch_inertia, centers_squared_diff = cluster._mini_batch_step(X_valid, x_squared_norms[validation_indices], cluster_centers, counts, old_center_buffer, False, distances=None, verbose=False)
@@ -103,7 +103,7 @@ class core():
         mbk.cluster_centers_ = cluster_centers
         mbk.counts_ = counts
         best_inertia = inertia
-        print('best inertia %d' %best_inertia)
+        print('best inertia %d' %best_inertia)'''
          
       while(True):
        thread_1 = afficheur('starting threads',labels_true,mbk,k_means,X,n_clusters)
@@ -131,7 +131,8 @@ class core():
         break
      
     except IndexError:
-     pass   
+     pass 
+  
     try:
      if options[2] == '-pp':
      
@@ -189,7 +190,7 @@ class core():
       return mbk, t_mini_batch
     except IndexError:
      pass
-
+    
     try:  
      if options[2] == '-o':
       n_batches = int(np.ceil(float(n_samples) / batch_size))
@@ -218,6 +219,7 @@ class core():
          best_inertia = None
          cluster_centers = None
          
+         #Random init with minimum inertia
          for init_idx in range(n_init):
           cluster_centers = cluster._init_centroids(X, n_clusters, self.init, random_state=random_state, x_squared_norms=x_squared_norms, init_size=init_size)
           batch_inertia, centers_squared_diff = cluster._mini_batch_step(X_valid, x_squared_norms[validation_indices], cluster_centers, counts, old_center_buffer, False, distances=None, verbose=False)

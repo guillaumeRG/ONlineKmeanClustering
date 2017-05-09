@@ -20,8 +20,10 @@ if __name__ == '__main__':
   init='k-means++'
   n_iter=int(sys.argv[1])
   datapath = 'data/'
+  csv=True
   try:
     if (sys.argv[2] == '-l' ):
+      csv = False
       with open(datapath + sys.argv[3], newline='') as csvfile:
         csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
         print('reading csv...')
@@ -29,7 +31,9 @@ if __name__ == '__main__':
         for row in csvdata:
           print(', '.join(row))
           index += 1
+          
     elif(sys.argv[3] == '-l'):
+      csv = False
       with open(datapath + sys.argv[4], newline='') as csvfile:
         csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
         print('reading csv...')
@@ -38,6 +42,7 @@ if __name__ == '__main__':
           print(', '.join(row))
           index += 1
     elif(sys.argv[4] == '-l'):
+      csv = False
       with open(datapath + sys.argv[5], newline='') as csvfile:
         csvdata = csv.reader(csvfile, delimiter='"', quotechar='|')
         print('reading csv...')
@@ -45,20 +50,22 @@ if __name__ == '__main__':
         for row in csvdata:
           print(', '.join(row))
           index += 1
-    else:
+   
+  except IndexError:
+    pass  
+     
+  #sinon
+  if csv:
       #Generate sample data
       np.random.seed(0)
       generator = datagen()
       X, labels_true, batch_size, n_samples, n_clusters = generator.genesis()
-  except IndexError:
-     pass   
+      #Compute clustering with K Mean
+      core = core()
+      k_means,t_batch = core.kmean(n_clusters, n_init, X)
 
-  #Compute clustering with K Mean
-  core = core()
-  k_means,t_batch = core.kmean(n_clusters, n_init, X)
-
-  #Compute clustering with Minibatch K Mean
-  mbk, t_mini_batch = core.mbkmean(sys.argv,n_clusters, n_init, batch_size, n_iter, n_samples, labels_true, k_means, X)
+      #Compute clustering with Minibatch K Mean
+      mbk, t_mini_batch = core.mbkmean(sys.argv, n_clusters, n_init, batch_size, n_iter, n_samples, labels_true, k_means, X)
  
 
 
@@ -70,7 +77,7 @@ if __name__ == '__main__':
     #Plot result
     fig = plt.figure(figsize=(8, 3))
     fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
-    colors = ['#4EACC5', '#FF9C34', '#4E9A06']
+    colors = ['#4EACC5', '#FF9C34', '#4E9A06', '#000000']
     
     # Attend que les threads se terminent
     #thread_1.join()
@@ -143,10 +150,12 @@ if __name__ == '__main__':
     for k in range(n_clusters):
      print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
      
-    print('Clustering \'s difference: %d'%n_diff)
+    print('Difference K-Mean - Mini-batch: %d'%n_diff)
     ratio = n_diff/len(mbk_means_labels == 4)
-    print('Difference \'s ratio: %f'%ratio)
-   
+    print('Ratio: %f'%ratio)
+    
+    
+
     
     if sys.argv[2] == '-p' or sys.argv[2] == '-pp'or sys.argv[2] == '-s' or sys.argv[3] == '-pp' or sys.argv[3] == '-p' :
      plt.show()

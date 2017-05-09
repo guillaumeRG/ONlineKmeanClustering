@@ -88,10 +88,12 @@ class afficheur(Thread):
      print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
     
       
-    print('Clustering \'s difference: %d'%n_diff)
+    print('Difference K-Mean - Mini-batch: %d'%n_diff)
     ratio = n_diff/len(mbk_means_labels == 4)
-    print('Difference \'s ratio: %f'%ratio)
+    print('Ratio: %f'%ratio)
     lastN_diff=n_diff
+
+
    
  def stop(self):
   self.run = False
