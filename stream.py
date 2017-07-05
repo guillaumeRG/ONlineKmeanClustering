@@ -83,9 +83,9 @@ class afficheur(Thread):
    n_diff =len(self.X[different,])
    if  lastN_diff!=n_diff  and ( abs(lastN_diff - n_diff) < len(self.X)/2):
     print('')
-    for k in range(self.n_clusters):
+    '''for k in range(self.n_clusters):
     
-     print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
+     print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))'''
     
       
     print('Difference K-Mean - Mini-batch: %d'%n_diff)

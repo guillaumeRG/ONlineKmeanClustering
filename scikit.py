@@ -147,8 +147,8 @@ if __name__ == '__main__':
     ax.set_yticks(())
      
     n_diff =len(X[different,])
-    for k in range(n_clusters):
-     print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))
+    ''' for k in range(n_clusters):
+     print('Error cluster %d : %f'%(k ,(nbK[k]/ nbL[k])))'''
      
     print('Difference K-Mean - Mini-batch: %d'%n_diff)
     ratio = n_diff/len(mbk_means_labels == 4)

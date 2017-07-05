@@ -11,7 +11,7 @@ import scipy.sparse as sp
 class core():
    
   def __init__(self):
-    self.init='k-means++'
+    self.init='random'
   def _tolerance(self, X, tol):
     """Return a tolerance which is independent of the dataset"""
     if sp.issparse(X):
@@ -94,7 +94,7 @@ class core():
       best_inertia = None
       cluster_centers = None
       
-      '''for init_idx in range(n_init):
+      for init_idx in range(n_init):
        
        cluster_centers = cluster._init_centroids(X, n_clusters, self.init, random_state=random_state, x_squared_norms=x_squared_norms, init_size=init_size)
        batch_inertia, centers_squared_diff = cluster._mini_batch_step(X_valid, x_squared_norms[validation_indices], cluster_centers, counts, old_center_buffer, False, distances=None, verbose=False)
@@ -103,7 +103,7 @@ class core():
         mbk.cluster_centers_ = cluster_centers
         mbk.counts_ = counts
         best_inertia = inertia
-        print('best inertia %d' %best_inertia)'''
+        print('best inertia %d' %best_inertia)
          
       while(True):
        thread_1 = afficheur('starting threads',labels_true,mbk,k_means,X,n_clusters)
@@ -115,6 +115,8 @@ class core():
         minibatch_indices = random_state.randint(0, n_samples, batch_size)
         mbk=mbk.partial_fit(X[minibatch_indices])
         thread_1.update(mbk)
+
+
        t_mini_batch = time.time() - t0
        thread_1.stop()
        thread_1.join()
